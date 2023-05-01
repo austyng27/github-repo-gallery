@@ -4,6 +4,10 @@ const overview = document.querySelector(".overview");
 const username = "austyng27";
 //Repo Display List Element
 const repoList = document.querySelector(".repo-list");
+//Section where repo info appears
+const repoInfoElement = document.querySelector(".repos");
+//Section with repo data display
+const repoDataElement = document.querySelector(".repo-data");
 
 //Github API to retrieve user info
 const getUserInfo = async function(){
@@ -45,4 +49,43 @@ const displayRepos = function(repos){
         repoItem.innerHTML = `<h3>${repo.name}</h3>`;
         repoList.append(repoItem);
     }
+};
+
+//Event listener for click of repo list item
+repoList.addEventListener("click", function(e){
+    if (e.target.matches("h3")){
+        const repoName = e.target.innerText;
+        getRepoInfo(repoName);
+    }
+});
+
+//Fetch specific repo info
+const getRepoInfo = async function(repoName){
+    const repoInfoRequest = await fetch(`https://api.github.com/repos/${username}/${repoName}`);
+    const repoInfo = await repoInfoRequest.json();
+    console.log(repoInfo);
+    //get languages 
+    const fetchLanguages = await fetch(repoInfo.languages_url);
+    const languageData = await fetchLanguages.json();
+    console.log(languageData);
+    //add each language to an array and make a list of lang
+    const languages = [];
+    for (const language in languageData){
+        languages.push(language);
+    }
+    repoInfoDisplay(repoInfo, languages);  
+};
+
+//Display the repo info
+const repoInfoDisplay = function(repoInfo, languages){
+    repoDataElement.innerHTML = "";
+    repoDataElement.classList.remove("hide");
+    repoInfoElement.classList.add("hide");
+    const infoDiv = document.createElement("div");
+    infoDiv.innerHTML = `<h3>Name: ${repoInfo.name}</h3>
+    <p>Description: ${repoInfo.description}</p>
+    <p>Default Branch: ${repoInfo.default_branch}</p>
+    <p>Languages: ${languages.join(", ")}</p>
+    <a class="visit" href="${repoInfo.html_url}" target="_blank" rel="noreferrer noopener">View Repo on GitHub!</a>`;
+    repoDataElement.append(infoDiv);
 };
