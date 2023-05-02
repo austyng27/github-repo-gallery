@@ -8,6 +8,12 @@ const repoList = document.querySelector(".repo-list");
 const repoInfoElement = document.querySelector(".repos");
 //Section with repo data display
 const repoDataElement = document.querySelector(".repo-data");
+//back to repo button
+const backButton = document.querySelector(".view-repos");
+//filter as you type
+const filterInput = document.querySelector(".filter-repos");
+
+
 
 //Github API to retrieve user info
 const getUserInfo = async function(){
@@ -41,8 +47,9 @@ const getRepos = async function(){
     displayRepos(repoData);
 };
 
-//Display info about each repo
+//Display repos
 const displayRepos = function(repos){
+    filterInput.classList.remove("hide");
     for(const repo of repos){
         const repoItem = document.createElement("li");
         repoItem.classList.add("repo");
@@ -76,11 +83,12 @@ const getRepoInfo = async function(repoName){
     repoInfoDisplay(repoInfo, languages);  
 };
 
-//Display the repo info
+//Display each repo info
 const repoInfoDisplay = function(repoInfo, languages){
     repoDataElement.innerHTML = "";
     repoDataElement.classList.remove("hide");
     repoInfoElement.classList.add("hide");
+    backButton.classList.remove("hide");
     const infoDiv = document.createElement("div");
     infoDiv.innerHTML = `<h3>Name: ${repoInfo.name}</h3>
     <p>Description: ${repoInfo.description}</p>
@@ -89,3 +97,26 @@ const repoInfoDisplay = function(repoInfo, languages){
     <a class="visit" href="${repoInfo.html_url}" target="_blank" rel="noreferrer noopener">View Repo on GitHub!</a>`;
     repoDataElement.append(infoDiv);
 };
+
+//click event for back to repo button
+backButton.addEventListener("click", function(){
+    repoInfoElement.classList.remove("hide");
+    repoDataElement.classList.add("hide");
+    backButton.classList.add("hide");
+});
+
+//dynamic search
+filterInput.addEventListener("input", function(e){
+    const searchTextValue = e.target.value;
+    const repos = document.querySelectorAll(".repo");
+    const lowercaseSearch = searchTextValue.toLowerCase();
+
+    for (const repo of repos){
+        const repoLowerText = repo.innerText.toLowerCase();
+        if (repoLowerText.includes(lowercaseSearch) ){
+            repo.classList.remove("hide");
+        } else {
+            repo.classList.add("hide");
+        }
+    }
+});
